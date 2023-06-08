@@ -1,9 +1,10 @@
+use pyo3::prelude::pyfunction;
 
 
-
+#[pyfunction]
 pub fn fibonacci(number: i32) -> u64 {
 	if number <= 0 {
-		panic!("The number should be a non-null positive integer");
+		panic!("Please provide a positive integer starting with 1");
 	}
 	match number {
 		1 | 2 => 1,
