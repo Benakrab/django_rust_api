@@ -3,8 +3,12 @@ import time
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from fibonacci_rust import fibonacci_rust
+
 
 class ComputeFibonacci(APIView):
+
+    supported_languages = ["Python", "Rust"]
 
     def fibonacci(self, number: int) -> int:
         if number <= 0:
@@ -16,16 +20,27 @@ class ComputeFibonacci(APIView):
     def get(self, request, *args, **kwargs):
 
         number = int(self.request.query_params.get("number"))
+        context = []
+        for lang in self.supported_languages:
+            match lang:
+                case "Python":
+                    start_time = time.time()
+                    result = self.fibonacci(number)
+                    end_time = time.time()
+                case "Rust":
+                    start_time = time.time()
+                    result = fibonacci_rust.fibonacci(number)
+                    end_time = time.time()
 
-        start_time = time.time()
-        result = self.fibonacci(number)
-        end_time = time.time()
-
-        return Response(dict(
-                    language="Python",
+            context.append(
+                dict(
+                    language=lang,
                     result=result,
                     computing_time=f"{end_time - start_time:0.4f} s",
-                ))
+                )
+            )
+
+        return Response(context)
 
 
 compute_fibonacci = ComputeFibonacci.as_view()
